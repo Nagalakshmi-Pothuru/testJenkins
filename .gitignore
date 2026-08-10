@@ -1,0 +1,25 @@
+
+# Dependencies
+node_modules/
+
+# Playwright output & cache
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+# Auth state — contains sensitive tokens, never commit
+/playwright/.auth/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS artifacts
+.DS_Store
+Thumbs.db
