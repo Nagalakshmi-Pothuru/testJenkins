@@ -1,0 +1,7 @@
+testCaseId,username,password,expectedResult,expectedMessage
+TC001,standard_user,secret_sauce,Pass,Login Successful
+TC002,locked_out_user,secret_sauce,Fail,Sorry, this user has been locked out.
+TC003,standard_user,wrong_password,Fail,Username and password do not match
+TC004,,secret_sauce,Fail,Username is required
+TC005,standard_user,,Fail,Password is required
+TC006,,,Fail,Username is required
