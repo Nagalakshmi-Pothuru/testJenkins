@@ -15,11 +15,14 @@ interface LoginTestCase {
 function parseLoginCsv(filePath: string): LoginTestCase[] {
   const lines = fs.readFileSync(filePath, 'utf-8').trim().split('\n');
   const [header, ...rows] = lines;
-  const keys = header.split(',') as (keyof LoginTestCase)[];
+  const keys = header.split(',').map((key) => key.trim()) as (keyof LoginTestCase)[];
   return rows.map((row: string) => {
     const values = row.split(',');
+    const expectedMessageIndex = keys.indexOf('expectedMessage');
+    const message = values.slice(expectedMessageIndex).join(',').trim();
+
     return keys.reduce((obj, key, i) => {
-      obj[key] = values[i] ?? '';
+      obj[key] = key === 'expectedMessage' ? message : (values[i] ?? '').trim();
       return obj;
     }, {} as LoginTestCase);
   });
