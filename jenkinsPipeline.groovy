@@ -1,79 +1,58 @@
 pipeline {
     agent any
-    // triggers {
-    //     cron('0 9 1 * 1-12')
-    // }
 
     stages {
 
         stage('Checkout') {
             steps {
-                echo 'Checking out source code'
-
-                git branch: 'playwrightBdd',
-                    url: 'https://github.com/Nagalakshmi-Pothuru/testJenkins.git'
+                git branch: 'develop',
+                url: 'https://github.com/company/playwright-framework.git'
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                echo 'Installing dependencies'
-                bat 'npm install'
+                sh 'npm ci'
             }
         }
 
-        stage('Install Playwright Browsers') {
+        stage('Install Browsers') {
             steps {
-                echo 'Installing Playwright browsers'
-                bat 'npx playwright install'
+                sh 'npx playwright install --with-deps'
             }
         }
 
-        stage('Generate BDD Tests') {
+        stage('Regression Tests') {
             steps {
-                echo 'Generating BDD tests'
-                bat 'npx bddgen'
+                sh 'npx playwright test'
             }
         }
 
-        stage('Execute Tests') {
+        stage('Publish Report') {
             steps {
-                echo 'Executing Playwright tests'
-                bat 'npx playwright test'
+                publishHTML([
+                    reportDir: 'playwright-report',
+                    reportFiles: 'index.html',
+                    reportName: 'Playwright Report'
+                ])
             }
         }
     }
 
     post {
-
-        always {
-            echo 'Publishing reports'
-
-            archiveArtifacts(
-                artifacts: 'playwright-report/**,test-results/**',
-                allowEmptyArchive: true
-            )
-
-            publishHTML(target: [
-                allowMissing: true,
-                alwaysLinkToLastBuild: true,
-                keepAll: true,
-                reportDir: 'playwright-report',
-                reportFiles: 'index.html',
-                reportName: 'Playwright Test Report'
-            ])
-        }
-
         success {
-            echo 'Playwright tests passed successfully.'
+            emailext(
+                subject: "SUCCESS: Build ${BUILD_NUMBER}",
+                body: "Playwright QA execution completed successfully.",
+              //  to: "qa-team@company.com"
+            )
         }
 
         failure {
-            echo 'Playwright tests failed.'
-
-            archiveArtifacts(
-                artifacts: 'test-results/**/*.png,test-results/**/*.zip,test-results/**/*.webm',
-                allowEmptyArchive: true
+            emailext(
+                subject: "FAILED: Build ${BUILD_NUMBER}",
+                body: "Please check Jenkins logs.",
+               // to: "qa-team@company.com"
             )
         }
     }
